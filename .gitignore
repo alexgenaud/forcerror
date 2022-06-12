@@ -1,13 +1,53 @@
-# Compiled class file
-*.class
+# Ignore Gradle clutter
+.gradle
+gradlew
+gradlew.bat
+build/
+gradle/
 
-# Log file
-*.log
+# Ignore Maven clutter
+target/
+pom.xml.*
 
-# BlueJ files
+# Ignore Git clutter
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
+*_BACKUP_*.txt
+*_BASE_*.txt
+*_LOCAL_*.txt
+*_REMOTE_*.txt
+
+# Ignore Eclipse clutter
+.classpath
+.metadata
+.project
+.settings/
+bin/
+classes/
+
+# Ignore IntelliJ clutter
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Ignore NetBeans clutter
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+# Ignore VS Code clutter
+.vscode/
+
+# Ignore BlueJ files
 *.ctxt
 
-# Mobile Tools for Java (J2ME)
+# Ignore Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
 # Package Files #
@@ -21,3 +61,22 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# Ignore Win, Mac clutter
+.DS_Store
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+
+# Ignore temp clutter
+*.bak
+*.class
+*.log
+*.tmp
+*.swp
+*~
+*#
+.#*
+bak/
+log/
+tmp/

@@ -1,0 +1,27 @@
+plugins {
+    // Apply the application plugin to add support for building a CLI application in Java.
+    id 'application'
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+testing {
+    suites {
+        test {
+            // Use JUnit Jupiter test framework
+            useJUnitJupiter('5.8.1')
+        }
+    }
+}
+
+application {
+    mainClass = 'forcerror.App'
+}
+
+tasks.withType(JavaExec) {
+    jvmArgs += "-Xmx2050k"
+}
+
