@@ -18,10 +18,16 @@ testing {
 }
 
 application {
-    mainClass = 'forcerror.App'
+    mainClass.set('forcerror.App')
+}
+
+jar {
+    manifest {
+        attributes("Main-Class": 'forcerror.App')
+    }
 }
 
 tasks.withType(JavaExec) {
-    jvmArgs += "-Xmx2050k"
+    jvmArgs += "-Xmx3000k"
 }
 

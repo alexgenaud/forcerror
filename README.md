@@ -1,24 +1,32 @@
 # Force Error (StackOverFlow, OutOfMemory)
 
-A simple playground to force unrecoverable Java runtime Errors.
+A playground to force unrecoverable Java runtime Errors.
 The code should compile, run, and exit without issues.
 However, by tweaking a few parameters, it is possible
 to force some Errors to be thrown.
 
 
-## Build and run
+## Gradle build and run
 
 Assumes Java 17.0.3 and gradle 7.4.2 (gradlew (gradle wrapper) not included):
 
-     $ gradle clean assemble run
+     $ gradle clean jar run --args "1 2 4"
 
+## Run from the command line
+
+After compiling forcerror with gradle, a jar should be found in build/libs/forcerror.jar.
+We can set the heap size (with the Xmx flag) and pass three arguments
+(while loop count, recursive iteration count, and data size per loop in bytes):
+
+     $ java -Xmx5000k -jar build/libs/forcerror.jar 10 20 40
 
 ## Try to break it!
 
-It should be possible to force one of several Errors
-by increasing the recursion iteration count,
+It should be possible to force one of several Errors by
 increasing the while loop count,
-increasing the data size, or decreasing the jvm heap size,
+increasing the recursion iteration count,
+increasing the data size (per loop),
+or decreasing the JVM heap size.
 
 
 ### OutOfMemoryError
@@ -27,29 +35,30 @@ The JVM requires a few megabytes to load itself.
 So, with only a megabyte of heap space,
 the JVM may run out of memory before the Main loop even starts. 
 Most JVMs will crash early if the max heap size is less than a few megabytes
-(2050 kilobytes for me, to be exact).
-We can test this by setting Xmx jvmArg incredibly low in build.gradle:
+(2049 kilobytes for me, to be exact).
 
-    jvmArgs += "-Xmx1k" // Way too small max heap
+We can modify the heap size in build.gradle (line 31)
+by setting Xmx jvmArg below and above 2000k (give or take a few hundred)
+and recompiling with 'gradle jar'.
 
-Or even
+    jvmArgs += "-Xmx1500k" // Probably too low
 
-    jvmArgs += "-Xmx1000k" // Probably still too low
+However, rather than editing the source code and build configuration,
+the heap size can be set (-Xmx)
+and the jar can be executed directly from the command line:
 
-But
+     $ java -Xmx2500k -jar build/libs/forcerror.jar 0 0 4
 
-    jvmArgs += "-Xmx5000k" // Should start on most (v) machines
+After discovering the bare minimum heap size,
+we can test memory allocation.
+The following command will initialize a 2500 kilobyte heap
+and one while loop (no recursion) initializing
+four megabytes of unused data.
 
-After discovering the bare minimum maximum heap size, plus a bit more,
-we can test memory allocation. In forcerror.App.java
-we can increase the DATA_SIZE (the size of 32 bit integer array) and run again.
-
-    static final int WHILE_LOOPS = 1;
-    static final int RECURSE_LOOPS = 1;
-    static final int DATA_SIZE = 1000000;
+     $ java -Xmx2500k -jar build/libs/forcerror.jar 1 0 4004004
 
 If we constrained the heap size to the bare minimum, then
-a million integers (4 MB) in a single loop will surely crash the JVM.
+four megabytes will surely crash a JVM with a smaller heap.
 
 
 ### StackOverFlowError
@@ -58,32 +67,30 @@ A while loop, no matter how many iterations, is unlikely to overflow the stack.
 However, we can cause a stack overflow error to be thrown after
 recursing thousands of calls deep.
 
-    static final int WHILE_LOOPS = 0;
-    static final int RECURSE_LOOPS = 12345;
-    static final int DATA_SIZE = 1;
+     $ java -Xmx2500k -jar build/libs/forcerror.jar 0 12345 4
 
-My JVM will throw an error before 8000 recursive method calls.
+My JVM will throw an error before 7500 recursive method calls.
 
 
 ### Compilation optimizations
 
-If the array size is moderately low and if my
-JVM can handle one while loop, then it can handle billions of while loops.
-Either the garbage collector cleans up after every iteration
+If my JVM can handle one while loop,
+then it will most likley handle billions of while loops.
+Perhaps the garbage collector cleans up after every iteration
 or the (JIT) compiler realizes that the data array is never used
-and thus perhaps the data array is not generated at all (optimized out of the bytecode).
+and thus the data array is optimized away
+(reused or no array allocated at all in bytecode).
 
-    static final int WHILE_LOOPS = 0;
-    static final int RECURSE_LOOPS = 1000;
-    static final int DATA_SIZE = 1000;
+     $ java -Xmx2500k -jar build/libs/forcerror.jar 123456789 0 12340
 
-However, this is not the case with recursive calls.
+This is not the case with recursive calls.
 The JVM generates a unique and useless data array
 for each instance of the recursive method.
 The garbage collector cannot free up any of the data
 referenced by any of the recursive method
 instances (frames) on the stack.
 
+     $ java -Xmx2500k -jar build/libs/forcerror.jar 0 1234 12340
 
 ## Links, for more information
 
